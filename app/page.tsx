@@ -1,16 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { List } from "./lib/storage";
 import type { Todo } from "./types/todo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CheckIcon, TrashIcon } from "lucide-react";
 
 export default function Home() {
-  const [todoList, setTodoList] = useState<Todo[]>(List);
+  const [todoList, setTodoList] = useState<Todo[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const storedList = localStorage.getItem("todoList");
+    if (storedList) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTodoList(JSON.parse(storedList));
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("todoList", JSON.stringify(todoList));
+    }
+  }, [todoList, isLoaded]);
+
   const {
     register,
     handleSubmit,
@@ -18,9 +35,10 @@ export default function Home() {
     formState: { errors },
   } = useForm<Todo>();
 
-  const onSubmit = (data: Todo) => {
+  const HandleSubmit = (data: Todo) => {
     const description = data.description;
-    const id = todoList.length + 1;
+    const id = (todoList.at(-1)?.id ?? 0) + 1;
+
     setTodoList([
       ...todoList,
       {
@@ -33,15 +51,25 @@ export default function Home() {
   };
 
   const handleClick = (id: number) => {
-    const itemStatus = todoList[id - 1].completed;
+    console.log(id);
+
     setTodoList(
       todoList.map((item) => {
         if (item.id === id) {
-          item.completed = !itemStatus;
+          item.completed = !item.completed;
         }
         return item;
       }),
     );
+  };
+
+  const handleDelete = (id: number) => {
+    const newList = todoList.filter((item) => item.id !== id);
+    setTodoList(newList);
+  };
+
+  const handleClear = () => {
+    setTodoList([]);
   };
 
   return (
@@ -53,7 +81,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         <div className="border-2 rounded p-5">
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(HandleSubmit)}
             className="flex flex-row mt-2 mb-2 gap-2 justify-between"
           >
             <Field orientation="horizontal">
@@ -66,7 +94,21 @@ export default function Home() {
                 placeholder="Adicione um novo item"
                 aria-invalid={!!errors.description}
               />
-              <Button type="submit">Adicionar</Button>
+
+              <Button
+                type="submit"
+                disabled={errors.description ? true : false}
+              >
+                Adicionar
+              </Button>
+
+              <Button
+                variant="destructive"
+                onClick={handleClear}
+                disabled={!todoList.length}
+              >
+                Limpar lista
+              </Button>
             </Field>
           </form>
         </div>
@@ -77,15 +119,24 @@ export default function Home() {
               {todoList.map((item) => (
                 <li
                   key={item.id}
-                  onClick={() => handleClick(item.id)}
-                  className="flex flex-row items-center justify-between cursor-pointer ml-5 mr-5 pt-5 pb-3 gap-2 border-b-2 hover:text-gray-400 "
+                  className="flex flex-row items-center justify-between ml-5 mr-5 pt-5 pb-3 gap-2 border-b-2 hover:text-gray-400 "
                 >
                   <span
-                    className={`${item.completed ? "line-through text-gray-400" : ""}`}
+                    onClick={() => handleClick(item.id)}
+                    className={`${item.completed ? "line-through text-gray-400" : ""} flex flex-row items-center gap-2 justify-between w-full cursor-pointer`}
                   >
                     {item.description}
+                    {item.completed && (
+                      <CheckIcon className="text-green-600" />
+                    )}{" "}
                   </span>
-                  <span>{item.completed && "✅"}</span>
+
+                  <span>
+                    <TrashIcon
+                      className="text-red-600"
+                      onClick={() => handleDelete(item.id)}
+                    />
+                  </span>
                 </li>
               ))}
             </ul>
