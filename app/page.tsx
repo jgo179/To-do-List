@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckIcon, TrashIcon } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   const [todoList, setTodoList] = useState<Todo[]>([]);
@@ -74,8 +75,10 @@ export default function Home() {
 
   return (
     <div className="">
-      <div className="flex flex-center mt-15 mb-15 justify-center">
-        <h1 className="text-2xl font-bold text-center">Listas de tarefas</h1>
+      <div className="flex mt-16 mb-16 justify-center">
+        <h1 className="text-2xl font-bold text-center text-gray-300">
+          Listas de tarefas
+        </h1>
       </div>
 
       <div className="max-w-4xl mx-auto">
@@ -143,6 +146,25 @@ export default function Home() {
           </ScrollArea>
         </div>
       </div>
+      <footer className="flex flex-row fixed bottom-0 text-gray-600 w-full justify-center p-5">
+        <p className="flex flex-row items-center text-sm">
+          <a
+            href="https://github.com/jgo179"
+            target="_blank"
+            className="inline-flex mr-1"
+          >
+            <Image
+              src="github-icon-white.svg"
+              alt="github icon"
+              className="mr-1 "
+              width={20}
+              height={20}
+            />{" "}
+            Jonathan Oliveira 2026.
+          </a>
+          Todos os direitos reservados.
+        </p>
+      </footer>
     </div>
   );
 }
