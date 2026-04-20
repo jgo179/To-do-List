@@ -6,7 +6,7 @@ import type { Todo } from "./types/todo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CheckIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
 
@@ -52,15 +52,10 @@ export default function Home() {
   };
 
   const handleClick = (id: number) => {
-    console.log(id);
-
     setTodoList(
-      todoList.map((item) => {
-        if (item.id === id) {
-          item.completed = !item.completed;
-        }
-        return item;
-      }),
+      todoList.map((item) =>
+        item.id === id ? { ...item, completed: !item.completed } : item,
+      ),
     );
   };
 
@@ -74,7 +69,7 @@ export default function Home() {
   };
 
   return (
-    <div className="">
+    <div>
       <div className="flex mt-16 mb-16 justify-center">
         <h1 className="text-2xl font-bold text-center text-gray-300">
           Listas de tarefas
@@ -85,7 +80,7 @@ export default function Home() {
         <div className="border-2 rounded p-5">
           <form
             onSubmit={handleSubmit(HandleSubmit)}
-            className="flex flex-row mt-2 mb-2 gap-2 justify-between"
+            className="flex flex-row flex-wrap mt-2 mb-2 gap-2"
           >
             <Field orientation="horizontal">
               <Input
@@ -96,12 +91,10 @@ export default function Home() {
                 })}
                 placeholder="Adicione um novo item"
                 aria-invalid={!!errors.description}
+                type="text"
               />
 
-              <Button
-                type="submit"
-                disabled={errors.description ? true : false}
-              >
+              <Button type="submit" disabled={!!errors.description}>
                 Adicionar
               </Button>
 
@@ -143,6 +136,7 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <ScrollBar forceMount />
           </ScrollArea>
         </div>
       </div>
@@ -150,6 +144,7 @@ export default function Home() {
         <p className="flex flex-row items-center text-sm">
           <a
             href="https://github.com/jgo179"
+            rel="noopener noreferrer"
             target="_blank"
             className="inline-flex mr-1"
           >
