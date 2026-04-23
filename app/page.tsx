@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Todo } from "./types/todo";
+import type { ToDo } from "./types/todo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -11,8 +11,8 @@ import { CheckIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
-  const [todoList, setTodoList] = useState<Todo[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [todoList, setTodoList] = useState<ToDo[]>([]);
+  const isFirstRender = useRef(false);
 
   useEffect(() => {
     const storedList = localStorage.getItem("todoList");
@@ -20,23 +20,23 @@ export default function Home() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setTodoList(JSON.parse(storedList));
     }
-    setIsLoaded(true);
+    isFirstRender.current = true;
   }, []);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isFirstRender.current) {
       localStorage.setItem("todoList", JSON.stringify(todoList));
     }
-  }, [todoList, isLoaded]);
+  }, [todoList]);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<Todo>();
+  } = useForm<ToDo>();
 
-  const HandleSubmit = (data: Todo) => {
+  const HandleSubmit = (data: ToDo) => {
     const description = data.description;
     const id = (todoList.at(-1)?.id ?? 0) + 1;
 
